@@ -1,4 +1,4 @@
-module.exports = (function () {
+(function () {
    const framework = {
       array: (object) => {
          const output = [];
@@ -238,5 +238,5 @@ module.exports = (function () {
       }
    };
 
-   return framework;
+   core.export(framework);
 })();
