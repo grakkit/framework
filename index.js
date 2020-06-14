@@ -102,6 +102,10 @@
          });
          return output;
       },
+      delay: (script, period) => {
+         const unit = java.util.concurrent.TimeUnit.MILLISECONDS;
+         java.util.concurrent.CompletableFuture.delayedExecutor(period, unit).execute(script);
+      },
       entries: (object) => {
          return framework.keys(object).map((key) => {
             return { key: key, value: object[key] };
