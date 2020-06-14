@@ -119,7 +119,11 @@
       interval: (script, period) => {
          const state = { iteration: null };
          const loop = () => {
-            script();
+            try {
+               script();
+            } catch (error) {
+               console.error(error);
+            }
             state.iteration = framework.timeout(loop, period);
          };
          state.iteration = framework.timeout(loop, period);
