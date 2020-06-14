@@ -1,4 +1,5 @@
 (function () {
+   const tasks = [];
    const framework = {
       array: (object) => {
          const output = [];
@@ -107,7 +108,9 @@
          const unit = java.util.concurrent.TimeUnit.MILLISECONDS;
          const runnable = new (Java.extend(Java.type('java.lang.Runnable')))({ run: () => state.cancel || script() });
          java.util.concurrent.CompletableFuture.delayedExecutor(period, unit).execute(runnable);
-         return { cancel: () => (state.cancel = true) };
+         const output = { cancel: () => (state.cancel = true) };
+         tasks.push(output);
+         return output;
       },
       entries: (object) => {
          return framework.keys(object).map((key) => {
@@ -129,7 +132,9 @@
             state.iteration = framework.delay(loop, period);
          };
          state.iteration = framework.delay(loop, period);
-         return { cancel: () => state.iteration.cancel() };
+         const output = { cancel: () => state.iteration.cancel() };
+         tasks.push(output);
+         return output;
       },
       key: (object, value) => {
          return framework.keys(object)[framework.values(object).indexOf(value)];
@@ -253,6 +258,10 @@
          return core.values(object);
       }
    };
+
+   core.event('org.bukkit.event.server.PluginDisableEvent', (event) => {
+      event.getPlugin() === core.plugin && tasks.forEach((task) => task.cancel());
+   });
 
    core.export(framework);
 })();
