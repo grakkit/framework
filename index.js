@@ -135,7 +135,7 @@
          return framework.keys(object)[framework.values(object).indexOf(value)];
       },
       keys: (object) => {
-         return core.keys(object);
+         return Object.keys(object);
       },
       lower: (string) => {
          return string.toLowerCase();
@@ -259,7 +259,7 @@
          return string ? java.util.UUID.fromString(string) : java.util.UUID.randomUUID();
       },
       values: (object) => {
-         return core.values(object);
+         return Object.values(object);
       }
    };
 
