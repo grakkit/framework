@@ -103,8 +103,11 @@
          return output;
       },
       delay: (script, period) => {
+         const state = { cancel: false };
          const unit = java.util.concurrent.TimeUnit.MILLISECONDS;
-         java.util.concurrent.CompletableFuture.delayedExecutor(period, unit).execute(script);
+         const runnable = new (Java.extend(Java.type('java.lang.Runnable')))({ run: () => state.cancel || script() });
+         java.util.concurrent.CompletableFuture.delayedExecutor(period, unit).execute(runnable);
+         return { cancel: () => (state.cancel = true) };
       },
       entries: (object) => {
          return framework.keys(object).map((key) => {
@@ -118,6 +121,15 @@
          return array.filter((entry) => {
             return entry;
          });
+      },
+      interval: (script, period) => {
+         const state = { iteration: null };
+         const loop = () => {
+            script();
+            state.iteration = framework.delay(loop, period);
+         };
+         state.iteration = framework.delay(loop, period);
+         return { cancel: () => state.iteration.cancel() };
       },
       key: (object, value) => {
          return framework.keys(object)[framework.values(object).indexOf(value)];
