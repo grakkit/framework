@@ -103,15 +103,6 @@
          });
          return output;
       },
-      delay: (script, period) => {
-         const state = { cancel: false };
-         const unit = java.util.concurrent.TimeUnit.MILLISECONDS;
-         const runnable = new (Java.extend(Java.type('java.lang.Runnable')))({ run: () => state.cancel || script() });
-         java.util.concurrent.CompletableFuture.delayedExecutor(period, unit).execute(runnable);
-         const output = { cancel: () => (state.cancel = true) };
-         tasks.push(output);
-         return output;
-      },
       entries: (object) => {
          return framework.keys(object).map((key) => {
             return { key: key, value: object[key] };
@@ -129,9 +120,9 @@
          const state = { iteration: null };
          const loop = () => {
             script();
-            state.iteration = framework.delay(loop, period);
+            state.iteration = framework.timeout(loop, period);
          };
-         state.iteration = framework.delay(loop, period);
+         state.iteration = framework.timeout(loop, period);
          const output = { cancel: () => state.iteration.cancel() };
          tasks.push(output);
          return output;
@@ -243,6 +234,15 @@
                return entry.value;
             });
          return framework.object(framework.entries(object).filter(consumer));
+      },
+      timeout: (script, period) => {
+         const state = { cancel: false };
+         const unit = java.util.concurrent.TimeUnit.MILLISECONDS;
+         const runnable = new (Java.extend(Java.type('java.lang.Runnable')))({ run: () => state.cancel || script() });
+         java.util.concurrent.CompletableFuture.delayedExecutor(period, unit).execute(runnable);
+         const output = { cancel: () => (state.cancel = true) };
+         tasks.push(output);
+         return output;
       },
       type: (object) => {
          const type = toString.apply(object).split(' ')[1].slice(0, -1);
