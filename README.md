@@ -144,6 +144,9 @@ Converts the input `string` into a [UUID](https://docs.oracle.com/javase/10/docs
 ### `framework.values(object)`
 An alias for `Object.values(object)`.
 
+### `framework.wrapper(object)`
+Adds nashorn-style accessors to the input `object`. These accessors themselves implement `framework.wrapper`, meaning any accessed property will also have accessors, and so on.
+
 # Polyfills
 ### `atob(), btoa()`
 ```javascript
