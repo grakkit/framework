@@ -1,26 +1,6 @@
 (function () {
    const tasks = [];
    const framework = {
-      array: (object) => {
-         const output = [];
-         if (typeof object.length === 'number') {
-            if (object.length > 0) {
-               let index = 0;
-               while (output.length < object.length) {
-                  output.push(object[index++]);
-               }
-            }
-         } else if (typeof object.forEach === 'function') {
-            object.forEach((entry) => {
-               output.push(entry);
-            });
-         } else if (typeof object.forEachRemaining === 'function') {
-            object.forEachRemaining((entry) => {
-               output.push(entry);
-            });
-         }
-         return output;
-      },
       base: {
          characters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
          encode: (string) => {
@@ -190,7 +170,7 @@
             (consumer = (entry, index) => {
                return { [entry.key || index]: entry.value || entry };
             });
-         return framework.extend({}, ...framework.flat(framework.array(array).map(consumer)));
+         return framework.extend({}, ...framework.flat(array.map(consumer)));
       },
       pascal: (string, separator) => {
          return string
@@ -260,54 +240,6 @@
       },
       values: (object) => {
          return Object.values(object);
-      },
-      wrapper: (object) => {
-         if (object === null || typeof object !== 'object') {
-            return object;
-         } else {
-            const output = { instance: object };
-            framework.entries(object).forEach((entry) => {
-               let index = undefined;
-               entry.key.startsWith('is') && entry.key[2] && (index = 2);
-               entry.key.startsWith('get') && entry.key[3] && (index = 3);
-               if (index) {
-                  let key = entry.key.slice(index);
-                  if (key.length) {
-                     let camel = framework.lower(key[0]) + key.slice(1);
-                     if (!framework.keys(object).includes(camel)) {
-                        try {
-                           entry.value();
-                           Object.defineProperty(output, camel, {
-                              get () {
-                                 return framework.wrapper(entry.value());
-                              },
-                              set (value) {
-                                 return object[`set${key}`] && object[`set${key}`](value);
-                              }
-                           });
-                        } catch (error) {}
-                     }
-                  }
-               } else {
-                  Object.defineProperty(output, entry.key, {
-                     get () {
-                        return framework.wrapper(entry.value);
-                     }
-                  });
-               }
-            });
-            const array = framework.array(object);
-            framework.keys(array).forEach((index) => {
-               if (!framework.keys(output).includes(index)) {
-                  Object.defineProperty(output, index, {
-                     get () {
-                        return framework.wrapper(array[index]);
-                     }
-                  });
-               }
-            });
-            return output;
-         }
       }
    };
 

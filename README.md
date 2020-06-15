@@ -15,20 +15,7 @@ const framework = core.import('grakkit/framework');
 ```
 
 # Documentation
-### `framework.array(object)`
-Converts an array-like `object` into a fully qualified array. Array-like objects can be one of the following:
-- an object with a length property and numeric keys
-- an object with a `.forEach` iterator method
-- an object with a `.forEachRemaining` iterator method
 
-These criteria cover the following common data types:
-- JS Set
-- JS String
-- JS Array
-- [Java Iterator](https://docs.oracle.com/javase/10/docs/api/java/util/Iterator.html)
-- [Java Set](https://docs.oracle.com/javase/10/docs/api/java/util/Set.html)
-- [Java ArrayList](https://docs.oracle.com/javase/10/docs/api/java/util/ArrayList.html)
-- [Java Map](https://docs.oracle.com/javase/10/docs/api/java/util/Map.html) (returns an array of its entries)
 ### `framework.base.encode(string)`
 Encodes a `string` to base64 format.
 
@@ -143,9 +130,6 @@ Converts the input `string` into a [UUID](https://docs.oracle.com/javase/10/docs
 
 ### `framework.values(object)`
 An alias for `Object.values(object)`.
-
-### `framework.wrapper(object)`
-Adds nashorn-style accessors to the input `object`. These accessors themselves implement `framework.wrapper`, meaning any accessed property will also have accessors, and so on.
 
 # Polyfills
 ### `atob(), btoa()`
