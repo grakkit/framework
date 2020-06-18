@@ -249,12 +249,16 @@ const framework = {
       return framework.extend({}, ...framework.flat(array.map(consumer)));
    },
    pascal: (string, separator) => {
-      return string
-         .split(separator)
-         .map((chunk) => {
-            return framework.upper(chunk[0]) + framework.lower(chunk.slice(1));
-         })
-         .join('');
+      if (seperator) {
+         return string
+            .split(separator)
+            .map((chunk) => {
+               return framework.pascal(chunk);
+            })
+            .join('');
+      } else {
+         return framework.upper(string[0]) + string.slice(1);
+      }
    },
    simplify: (...context) => {
       let output = null;
