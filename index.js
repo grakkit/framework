@@ -249,7 +249,7 @@ const framework = {
       return framework.extend({}, ...framework.flat(array.map(consumer)));
    },
    pascal: (string, separator) => {
-      if (seperator) {
+      if (separator) {
          return string
             .split(separator)
             .map((chunk) => {
