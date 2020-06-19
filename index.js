@@ -44,7 +44,7 @@ const framework = {
                }
             }
          });
-         const array = core.array(object);
+         const array = framework.array(object);
          Object.keys(array).forEach((index) => {
             if (!Object.keys(output).includes(index)) {
                Object.defineProperty(output, index, {
