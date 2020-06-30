@@ -298,7 +298,7 @@ const framework = {
       } else if (typeof target.getUniqueId === 'function') {
          uuid = target.getUniqueId();
       } else if (target.constructor === Array) {
-         return target.map(player);
+         return target.map(framework.player);
       } else {
          throw `FrameworkError: Cannot convert ${core.output(target)} to standardized player notation!`;
       }
