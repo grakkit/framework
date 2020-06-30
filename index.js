@@ -300,7 +300,7 @@ const framework = {
       } else if (target.constructor === Array) {
          return target.map(player);
       } else {
-         throw `Cannot convert ${core.output(target)} to standardized player notation!`;
+         throw `FrameworkError: Cannot convert ${core.output(target)} to standardized player notation!`;
       }
       return Object.assign(players[uuid.toString()] || { uuid: uuid.toString() }, {
          online: server.getPlayer(uuid),
