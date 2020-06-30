@@ -57,6 +57,9 @@ const foo = object.foo;
 object.foo = 'test';
 ```
 
+### `framework.dist(source, target, flat)`
+Calculates the distance between the `source` and `target` locations. If the locations are not in the same world, the function will return `Infinity`. You can also set `flat` to true, in which case the Y axis will be ignored.
+
 ### `framework.entries(object)`
 Converts the input `object` into an array of entries. The entry format differs from `Object.entries` output:
 ```javascript

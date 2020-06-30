@@ -159,6 +159,13 @@ const framework = {
       });
       return output;
    },
+   dist: (source, target, flat) => {
+      if (source.getWorld() !== target.getWorld()) return Infinity;
+      var deltaX = source.getX() - target.getX();
+      var deltaY = flat ? 0 : source.getY() - target.getY();
+      var deltaZ = source.getZ() - target.getZ();
+      return Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+   },
    entries: (object) => {
       return framework.keys(object).map((key) => {
          return { key: key, value: object[key] };
