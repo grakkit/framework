@@ -4,7 +4,7 @@ const framework = {
       if (object === null || typeof object !== 'object') {
          return object;
       } else {
-         const output = { instance: object };
+         const output = { _: object };
          Object.entries(object).forEach((entry) => {
             if (toString.apply(entry[1]) === '[foreign HostFunction]') {
                Object.defineProperty(output, entry[0], {
