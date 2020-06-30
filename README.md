@@ -110,6 +110,9 @@ Converts the output `array` of `framework.entries` back into an object, with an 
 ### `framework.pascal(string, separator)`
 Converts a `string` into [pascal case format](https://techterms.com/definition/pascalcase), with words being seperated by `seperator`.
 
+### `framework.player(target)`
+Takes a UUID, UUID string, IP address, online player instance, full or partial online player name, offline player instance, full offline player name, jx entity chainer, or the output of this function as the `target` and returns a standardized object with associated player IP address, name, UUID, online instance, and offline instance. If an array is supplied, it maps each element of the `target` array with this function.
+
 ### `framework.simplify(object)`
 Creates a clone of the input `object` and recursively removes false-like or circular values. This works with arrays, too.
 

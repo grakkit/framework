@@ -267,6 +267,46 @@ const framework = {
          return framework.upper(string[0]) + string.slice(1);
       }
    },
+   player: (target) => {
+      let uuid = undefined;
+      const players = Object.assign({}, core.data('grakkit/players'));
+      const online = server.getPlayer(target);
+      if (target instanceof java.util.UUID) {
+         uuid = target;
+      } else if (typeof target === 'string') {
+         if (players[target]) {
+            uuid = java.util.UUID.fromString(players[target].uuid);
+         } else if (online) {
+            uuid = online.getUniqueId();
+         } else {
+            framework.array(server.getOfflinePlayers()).forEach((offline) => {
+               const stored = offline.getUniqueId();
+               if (uuid === undefined && [ stored.toString(), offline.getName() ].includes(target)) uuid = stored;
+            });
+            if (uuid === undefined) {
+               try {
+                  uuid = java.util.UUID.fromString(target);
+               } catch (error) {
+                  uuid = server.getOfflinePlayer(target).getUniqueId();
+               }
+            }
+         }
+      } else if (typeof target.uuid === 'string') {
+         uuid = java.util.UUID.fromString(target.uuid);
+      } else if (typeof target.uuid === 'function') {
+         uuid = java.util.UUID.fromString(target.uuid());
+      } else if (typeof target.getUniqueId === 'function') {
+         uuid = target.getUniqueId();
+      } else if (target.constructor === Array) {
+         return target.map(player);
+      } else {
+         throw `Cannot convert ${core.output(target)} to standardized player notation!`;
+      }
+      return Object.assign(players[uuid.toString()] || { uuid: uuid.toString() }, {
+         online: online,
+         offline: server.getOfflinePlayer(uuid)
+      });
+   },
    simplify: (...context) => {
       let output = null;
       const object = context[0];
@@ -328,6 +368,19 @@ const framework = {
       return Object.values(object);
    }
 };
+
+core.event('org.bukkit.event.player.PlayerJoinEvent', (event) => {
+   const player = event.getPlayer();
+   const address = player.getAddress().getAddress().getHostAddress();
+   const name = player.getName();
+   const uuid = player.getUniqueId().toString();
+   const info = { address: address, name: name, uuid: uuid };
+   Object.assign(core.data('grakkit/players'), {
+      [address]: info,
+      [name]: info,
+      [uuid]: info
+   });
+});
 
 core.event('org.bukkit.event.server.PluginDisableEvent', (event) => {
    event.getPlugin() === core.plugin && tasks.forEach((task) => task.cancel());
