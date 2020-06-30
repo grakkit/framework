@@ -270,10 +270,10 @@ const framework = {
    player: (target) => {
       let uuid = undefined;
       const players = Object.assign({}, core.data('grakkit/players'));
-      const online = server.getPlayer(target);
       if (target instanceof java.util.UUID) {
          uuid = target;
       } else if (typeof target === 'string') {
+         const online = server.getPlayer(target);
          if (players[target]) {
             uuid = java.util.UUID.fromString(players[target].uuid);
          } else if (online) {
@@ -303,7 +303,7 @@ const framework = {
          throw `Cannot convert ${core.output(target)} to standardized player notation!`;
       }
       return Object.assign(players[uuid.toString()] || { uuid: uuid.toString() }, {
-         online: online,
+         online: server.getPlayer(uuid),
          offline: server.getOfflinePlayer(uuid)
       });
    },
