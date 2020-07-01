@@ -1,5 +1,5 @@
 // you were meant to defeat the sith, not join them!
-const nms = Java.type(`net.minecraft.server.${server.getClass().getCanonicalName().split('.')[3]}`);
+const nms = eval(`Packages.net.minecraft.server.${server.getClass().getCanonicalName().split('.')[3]}`);
 
 const UUID = Java.type('java.util.UUID');
 const Runnable = Java.extend(Java.type('java.lang.Runnable'));
