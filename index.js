@@ -1,6 +1,19 @@
+// you were meant to defeat the sith, not join them!
+const nms = Java.type(`net.minecraft.server.${server.getClass().getCanonicalName().split('.')[3]}`);
+
+const UUID = Java.type('java.util.UUID');
+const Runnable = Java.extend(Java.type('java.lang.Runnable'));
+const ArrayList = Java.type('java.util.ArrayList');
+const NBTTagList = nms.NBTTagList;
+const SecureRandom = Java.type('java.security.SecureRandom');
+const NBTTagCompound = nms.NBTTagCompound;
+const NBTTagIntArray = nms.NBTTagIntArray;
+const NBTTagByteArray = nms.NBTTagByteArray;
+
 const tasks = [];
-const crypto = new java.security.SecureRandom();
-const framework = {
+const crypto = new SecureRandom();
+
+const _ = {
    access: (object) => {
       if (object === null || typeof object !== 'object') {
          return object;
@@ -10,7 +23,7 @@ const framework = {
             if (toString.apply(entry[1]) === '[foreign HostFunction]') {
                Object.defineProperty(output, entry[0], {
                   get () {
-                     const output = (...args) => framework.access(entry[1](...args));
+                     const output = (...args) => _.access(entry[1](...args));
                      output.hostFunction = entry[0];
                      return output;
                   }
@@ -18,7 +31,7 @@ const framework = {
             } else {
                Object.defineProperty(output, entry[0], {
                   get () {
-                     return framework.access(entry[1]);
+                     return _.access(entry[1]);
                   }
                });
             }
@@ -34,7 +47,7 @@ const framework = {
                         entry[1]();
                         Object.defineProperty(output, camel, {
                            get () {
-                              return framework.access(entry[1]());
+                              return _.access(entry[1]());
                            },
                            set (value) {
                               return object[`set${key}`] && object[`set${key}`](value);
@@ -45,12 +58,12 @@ const framework = {
                }
             }
          });
-         const array = framework.array(object);
+         const array = _.array(object);
          Object.keys(array).forEach((index) => {
             if (!Object.keys(output).includes(index)) {
                Object.defineProperty(output, index, {
                   get () {
-                     return framework.access(array[index]);
+                     return _.access(array[index]);
                   }
                });
             }
@@ -90,10 +103,10 @@ const framework = {
             let d = ((b & 0xf) << 2) | ((c >> 6) & 0x3);
             let e = c & 0x3f;
             b ? c || (e = 64) : (d = e = 64);
-            result += framework.base.characters.charAt((a >> 2) & 0x3f);
-            result += framework.base.characters.charAt(((a & 0x3) << 4) | ((b >> 4) & 0xf));
-            result += framework.base.characters.charAt(d);
-            result += framework.base.characters.charAt(e);
+            result += _.base.characters.charAt((a >> 2) & 0x3f);
+            result += _.base.characters.charAt(((a & 0x3) << 4) | ((b >> 4) & 0xf));
+            result += _.base.characters.charAt(d);
+            result += _.base.characters.charAt(e);
          }
          return result;
       },
@@ -101,10 +114,10 @@ const framework = {
          let index = 0;
          let result = '';
          while (index < string.length) {
-            let a = framework.base.characters.indexOf(string.charAt(index++));
-            let b = framework.base.characters.indexOf(string.charAt(index++));
-            let c = framework.base.characters.indexOf(string.charAt(index++));
-            let d = framework.base.characters.indexOf(string.charAt(index++));
+            let a = _.base.characters.indexOf(string.charAt(index++));
+            let b = _.base.characters.indexOf(string.charAt(index++));
+            let c = _.base.characters.indexOf(string.charAt(index++));
+            let d = _.base.characters.indexOf(string.charAt(index++));
             let e = ((b & 0xf) << 4) | ((c >> 2) & 0xf);
             let f = ((c & 0x3) << 6) | (d & 0x3f);
             result += String.fromCharCode(((a & 0x3f) << 2) | ((b >> 4) & 0x3));
@@ -115,14 +128,14 @@ const framework = {
       }
    },
    camel: (string, separator) => {
-      const pascal = framework.pascal(string, separator);
-      return framework.lower(pascal[0]) + pascal.slice(1);
+      const pascal = _.pascal(string, separator);
+      return _.lower(pascal[0]) + pascal.slice(1);
    },
    clamp: (number, min, max) => {
       return number < min ? min : number > max ? max : number;
    },
    collect: (...array) => {
-      const output = new java.util.ArrayList();
+      const output = new ArrayList();
       array.forEach((entry) => {
          output.add(entry);
       });
@@ -144,7 +157,7 @@ const framework = {
             };
          });
       const output = {};
-      framework.entries(object).forEach((entry) => {
+      _.entries(object).forEach((entry) => {
          const info = consumer(entry);
          if (info) {
             Object.defineProperty(output, entry.key, {
@@ -171,7 +184,7 @@ const framework = {
       return Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
    },
    entries: (object) => {
-      return framework.keys(object).map((key) => {
+      return _.keys(object).map((key) => {
          return { key: key, value: object[key] };
       });
    },
@@ -191,15 +204,15 @@ const framework = {
          } catch (error) {
             console.error(error);
          }
-         state.iteration = framework.timeout(loop, period);
+         state.iteration = _.timeout(loop, period);
       };
-      state.iteration = framework.timeout(loop, period);
+      state.iteration = _.timeout(loop, period);
       const output = { cancel: () => state.iteration.cancel() };
       tasks.push(output);
       return output;
    },
    key: (object, value) => {
-      return framework.keys(object)[framework.values(object).indexOf(value)];
+      return _.keys(object)[_.values(object).indexOf(value)];
    },
    keys: (object) => {
       return Object.keys(object);
@@ -214,18 +227,17 @@ const framework = {
          case 'function':
             return filter(object);
          case 'object':
-            switch (framework.type(filter)) {
+            switch (_.type(filter)) {
                case 'Array':
                   return filter
                      .map((entry) => {
-                        return framework.match(object, entry);
+                        return _.match(object, entry);
                      })
                      .includes(true);
                case 'Object':
-                  return !framework
-                     .keys(filter)
+                  return !_.keys(filter)
                      .map((key) => {
-                        return framework.match(object[key], filter[key]);
+                        return _.match(object[key], filter[key]);
                      })
                      .includes(false);
                default:
@@ -237,7 +249,7 @@ const framework = {
    },
    mirror: (options) => {
       options || (options = {});
-      const mirror = framework.extend(options.array || [], {
+      const mirror = _.extend(options.array || [], {
          add: options.add || (() => {}),
          remove: options.remove || (() => {}),
          clear: options.clear || (() => {})
@@ -252,19 +264,15 @@ const framework = {
          }
       };
    },
-   nms: (subclass, ...args) => {
-      const type = Java.type(`net.minecraft.server.${`${server.getClass()}`.split('.')[3]}.${subclass}`);
-      return new type(..._.flat(args));
-   },
+   nms: nms,
    object: (array, consumer) => {
       consumer ||
          (consumer = (entry, index) => {
             return { [entry.key || index]: entry.value || entry };
          });
-      return framework.extend({}, ...framework.flat(array.map(consumer)));
+      return _.extend({}, ..._.flat(array.map(consumer)));
    },
    parse: (data) => {
-      let compound = undefined;
       console.log(core.output(data.value));
       try {
          switch (data.type) {
@@ -277,20 +285,25 @@ const framework = {
             case 'Short':
             case 'Byte':
             case 'String':
-               compound = framework.nms('NBTTagCompound');
-               compound[`set${data.type}`]('x', data.value);
-               return compound.get('x');
+               const temp = new NBTTagCompound();
+               temp[`set${data.type}`]('x', data.value);
+               return temp.get('x');
             case 'End':
                return null;
             case 'List':
+               const list = new NBTTagList();
+               data.value.forEach((entry) => list.add(_.parse(entry)));
             case 'ByteArray':
+               const bytes = new NBTTagByteArray(_.collect());
+               data.value.forEach((entry) => bytes.add(_.parse(entry)));
+               return bytes;
             case 'IntArray':
-               const list = framework.nms(`NBTTag${data.type}`, data.type !== 'List' && _.collect());
-               data.value.forEach((entry) => list.add(framework.parse(entry)));
-               return list;
+               const ints = new NBTTagIntArray(_.collect());
+               data.value.forEach((entry) => ints.add(_.parse(entry)));
+               return ints;
             case 'Compound':
-               compound = framework.nms('NBTTagCompound');
-               _.entries(data.value).forEach((entry) => compound.set(entry.key, framework.parse(entry.value)));
+               const compound = new NBTTagCompound();
+               _.entries(data.value).forEach((entry) => compound.set(entry.key, _.parse(entry.value)));
                return compound;
          }
       } catch (error) {
@@ -303,45 +316,45 @@ const framework = {
          return string
             .split(separator)
             .map((chunk) => {
-               return framework.pascal(chunk);
+               return _.pascal(chunk);
             })
             .join('');
       } else {
-         return framework.upper(string[0]) + string.slice(1);
+         return _.upper(string[0]) + string.slice(1);
       }
    },
    player: (target) => {
       let uuid = undefined;
       const players = Object.assign({}, core.data('grakkit/players'));
-      if (target instanceof java.util.UUID) {
+      if (target instanceof UUID) {
          uuid = target;
       } else if (typeof target === 'string') {
          const online = server.getPlayer(target);
          if (players[target]) {
-            uuid = java.util.UUID.fromString(players[target].uuid);
+            uuid = _.uuid(players[target].uuid);
          } else if (online) {
             uuid = online.getUniqueId();
          } else {
-            framework.array(server.getOfflinePlayers()).forEach((offline) => {
+            _.array(server.getOfflinePlayers()).forEach((offline) => {
                const stored = offline.getUniqueId();
                if (uuid === undefined && [ stored.toString(), offline.getName() ].includes(target)) uuid = stored;
             });
             if (uuid === undefined) {
                try {
-                  uuid = java.util.UUID.fromString(target);
+                  uuid = _.uuid(target);
                } catch (error) {
                   uuid = server.getOfflinePlayer(target).getUniqueId();
                }
             }
          }
       } else if (typeof target.uuid === 'string') {
-         uuid = java.util.UUID.fromString(target.uuid);
+         uuid = _.uuid(target.uuid);
       } else if (typeof target.uuid === 'function') {
-         uuid = java.util.UUID.fromString(target.uuid());
+         uuid = _.uuid(target.uuid());
       } else if (typeof target.getUniqueId === 'function') {
          uuid = target.getUniqueId();
       } else if (target.constructor === Array) {
-         return target.map(framework.player);
+         return target.map(_.player);
       } else {
          throw `FrameworkError: Cannot convert ${core.output(target)} to standardized player notation!`;
       }
@@ -356,8 +369,8 @@ const framework = {
             return (crypto.nextInt() + 2147483648) / 4294967296;
          case 1:
             if (typeof args[0] === 'number') return _.rand() < args[0];
-            else if (args[0].length) return args[0][framework.rand(0, args[0].length - 1)];
-            else return framework.rand(framework.keys(args[0]));
+            else if (args[0].length) return args[0][_.rand(0, args[0].length - 1)];
+            else return _.rand(_.keys(args[0]));
          case 2:
             return Math.floor(_.rand() * (args[1] - args[0] + 1)) + args[0];
       }
@@ -387,11 +400,11 @@ const framework = {
             case 'List':
             case 'ByteArray':
             case 'IntArray':
-               value = _.array(data).map(framework.serialize);
+               value = _.array(data).map(_.serialize);
                break;
             case 'Compound':
                value = _.object(_.array(data.map.entrySet()), (entry) => {
-                  return { [entry.getKey()]: framework.serialize(entry.getValue()) };
+                  return { [entry.getKey()]: _.serialize(entry.getValue()) };
                });
                break;
          }
@@ -401,26 +414,26 @@ const framework = {
    simplify: (...context) => {
       let output = null;
       const object = context[0];
-      switch (framework.type(object)) {
+      switch (_.type(object)) {
          case 'Array':
             output = [];
             for (let entry of object) {
                if (!context.includes(entry)) {
-                  output.push(framework.simplify(entry, ...context));
+                  output.push(_.simplify(entry, ...context));
                }
             }
-            output = framework.flat(output);
+            output = _.flat(output);
             output.length || (output = null);
             break;
          case 'Object':
             output = {};
-            for (let key of framework.keys(object)) {
+            for (let key of _.keys(object)) {
                if (!context.includes(object[key])) {
-                  output[key] = framework.simplify(object[key], ...context);
+                  output[key] = _.simplify(object[key], ...context);
                }
             }
-            output = framework.strain(output);
-            framework.keys(output).length || (output = null);
+            output = _.strain(output);
+            _.keys(output).length || (output = null);
             break;
          default:
             output = object;
@@ -435,11 +448,11 @@ const framework = {
          (consumer = (entry) => {
             return entry.value;
          });
-      return framework.object(framework.entries(object).filter(consumer));
+      return _.object(_.entries(object).filter(consumer));
    },
    timeout: (script, period) => {
       const state = { cancel: false };
-      const runnable = new (Java.extend(Java.type('java.lang.Runnable')))({ run: () => state.cancel || script() });
+      const runnable = new Runnable({ run: () => state.cancel || script() });
       server.getScheduler().runTaskLater(core.plugin, runnable, Math.ceil(period / 50));
       const output = { cancel: () => (state.cancel = true) };
       tasks.push(output);
@@ -453,7 +466,7 @@ const framework = {
       return string.toUpperCase();
    },
    uuid: (string) => {
-      return string ? java.util.UUID.fromString(string) : java.util.UUID.randomUUID();
+      return string ? UUID.fromString(string) : UUID.randomUUID();
    },
    values: (object) => {
       return Object.values(object);
@@ -477,4 +490,4 @@ core.event('org.bukkit.event.server.PluginDisableEvent', (event) => {
    event.getPlugin() === core.plugin && tasks.forEach((task) => task.cancel());
 });
 
-core.export(framework);
+core.export(_);
