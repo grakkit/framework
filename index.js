@@ -1,4 +1,5 @@
 const tasks = [];
+const crypto = new java.security.SecureRandom();
 const framework = {
    access: (object) => {
       if (object === null || typeof object !== 'object') {
@@ -306,6 +307,18 @@ const framework = {
          online: server.getPlayer(uuid),
          offline: server.getOfflinePlayer(uuid)
       });
+   },
+   rand: (...args) => {
+      switch (args.length) {
+         case 0:
+            return (crypto.nextInt() + 2147483648) / 4294967296;
+         case 1:
+            if (typeof args[0] === 'number') return _.rand() < args[0];
+            else if (args[0].length) return args[0][framework.rand(0, args[0].length - 1)];
+            else return framework.rand(framework.values(args[0]));
+         case 2:
+            return Math.floor(_.rand() * (args[1] - args[0] + 1)) + args[0];
+      }
    },
    simplify: (...context) => {
       let output = null;
