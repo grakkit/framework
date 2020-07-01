@@ -31,6 +31,9 @@ If the `number` is more than the `max`, return the `max`. If the number is less 
 ### `framework.collect(...items)`
 Creates a new [ArrayList](https://docs.oracle.com/javase/10/docs/api/java/util/ArrayList.html) from the specified `items`.
 
+### `framework.color(string)`
+Converts essentials-style color code notation within a `string` into server color codes.
+
 ### `framework.define(object, consumer)`
 Converts each entry from the input `object` into getters and setters. The optional `consumer` function can be defined to customize these getters and setters.
 
@@ -118,6 +121,26 @@ Creates a clone of the input `object` and recursively removes false-like or circ
 
 ### `framework.splice(string, separator, ...index)`
 Splits the input `string` with the `seperator`, slices the array with `array.slice(...index)`, and rejoins the sliced array with the `seperator`.
+
+### `framework.rand(...args)`
+With no `args`, returns a cryptographically-secure random number between 0 (inclusive) and 1 (exclusive). This output is consistent with Math.random(), and is used for all other rand-based calculations.
+
+With one `arg`, if the arg is a `number`, it calculates a boolean based on chance. A value of `0` will always return `false`, a value of `0.5` has a 50% chance of either `true` or `false`, and a value of `1` will always return `true`. Example usage:
+
+```javascript
+// 20% chance of "true"
+framework.rand(20/100);
+
+// 80% chance of "true"
+framework.rand(0.8);
+```
+
+With one `arg`, if the arg is an `object`, it will select a random key from that object. In the case of an array, it selects a random value.
+
+With two `args`, the first one being a minimum and the second one being a maximum, the randomizer will calculate a random integer between the minimum and maximum.
+
+### `framework.raw(string)`
+Converts server color codes within a `string` into essentials-style color code notation.
 
 ### `framework.strain(object, consumer)`
 Creates a clone of the input `object`, and filters each entry with the provided `consumer`. If no consumer is provided, then removes entries whose values are false-like.

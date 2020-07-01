@@ -128,6 +128,9 @@ const framework = {
       });
       return output;
    },
+   color: (string) => {
+      return string.replace(/(&)/g, '§').replace(/(§§)/g, '&');
+   },
    define: (object, consumer) => {
       consumer ||
          (consumer = (entry) => {
@@ -315,10 +318,13 @@ const framework = {
          case 1:
             if (typeof args[0] === 'number') return _.rand() < args[0];
             else if (args[0].length) return args[0][framework.rand(0, args[0].length - 1)];
-            else return framework.rand(framework.values(args[0]));
+            else return framework.rand(framework.keys(args[0]));
          case 2:
             return Math.floor(_.rand() * (args[1] - args[0] + 1)) + args[0];
       }
+   },
+   raw: (string) => {
+      return string.replace(/(&)/g, '&&').replace(/(§)/g, '&');
    },
    simplify: (...context) => {
       let output = null;
