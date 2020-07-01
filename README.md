@@ -31,9 +31,6 @@ If the `number` is more than the `max`, return the `max`. If the number is less 
 ### `framework.collect(...items)`
 Creates a new [ArrayList](https://docs.oracle.com/javase/10/docs/api/java/util/ArrayList.html) from the specified `items`.
 
-### `framework.color(string)`
-Converts essentials-style color code notation within a `string` into server color codes.
-
 ### `framework.define(object, consumer)`
 Converts each entry from the input `object` into getters and setters. The optional `consumer` function can be defined to customize these getters and setters.
 
@@ -107,8 +104,17 @@ If the `filter` is a primitive value or a non-standard object, return true if th
 ### `framework.mirror(options)`
 Creates an array whose values can be accessed and modified by set-like functions, then returns an object to dynamically `get` and `set` the array. This is useful for specific cases involving interactions between getter/setters and java sets or maps.
 
+### `framework.nms(subclass, ...args)`
+Gets a `subclass` from the NMS base package and calls its constructor with the given `args`.
+
 ### `framework.object(array, consumer)`
 Converts the output `array` of `framework.entries` back into an object, with an optional consumer to process each entry before being added. False-like return values from this consumer will not be added to the output object.
+
+### `framework.parse(object)`
+Creates NBT data from the given `object`.
+
+### `framework.serialize(data)`
+Creates a JSON-serializable object from the given NBT `data`.
 
 ### `framework.pascal(string, separator)`
 Converts a `string` into [pascal case format](https://techterms.com/definition/pascalcase), with words being seperated by `seperator`.

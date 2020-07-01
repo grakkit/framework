@@ -252,12 +252,51 @@ const framework = {
          }
       };
    },
+   nms: (subclass, ...args) => {
+      const type = Java.type(`net.minecraft.server.${`${server.getClass()}`.split('.')[3]}.${subclass}`);
+      return new type(..._.flat(args));
+   },
    object: (array, consumer) => {
       consumer ||
          (consumer = (entry, index) => {
             return { [entry.key || index]: entry.value || entry };
          });
       return framework.extend({}, ...framework.flat(array.map(consumer)));
+   },
+   parse: (data) => {
+      let compound = undefined;
+      console.log(core.output(data.value));
+      try {
+         switch (data.type) {
+            case 'None':
+               return data.value;
+            case 'Int':
+            case 'Float':
+            case 'Double':
+            case 'Long':
+            case 'Short':
+            case 'Byte':
+            case 'String':
+               compound = framework.nms('NBTTagCompound');
+               compound[`set${data.type}`]('x', data.value);
+               return compound.get('x');
+            case 'End':
+               return null;
+            case 'List':
+            case 'ByteArray':
+            case 'IntArray':
+               const list = framework.nms(`NBTTag${data.type}`, data.type !== 'List' && _.collect());
+               data.value.forEach((entry) => list.add(framework.parse(entry)));
+               return list;
+            case 'Compound':
+               compound = framework.nms('NBTTagCompound');
+               _.entries(data.value).forEach((entry) => compound.set(entry.key, framework.parse(entry.value)));
+               return compound;
+         }
+      } catch (error) {
+         global.test = data;
+         console.log(error.stack);
+      }
    },
    pascal: (string, separator) => {
       if (separator) {
@@ -325,6 +364,39 @@ const framework = {
    },
    raw: (string) => {
       return string.replace(/(&)/g, '&&').replace(/(§)/g, '&');
+   },
+   serialize: (data) => {
+      if ([ null, undefined ].includes(data)) {
+         return { type: 'None', value: data };
+      } else {
+         let value = undefined;
+         const type = data.getClass().getCanonicalName().split('NBTTag')[1];
+         switch (type) {
+            case 'Int':
+            case 'Float':
+            case 'Double':
+            case 'Long':
+            case 'Short':
+            case 'Byte':
+            case 'String':
+               value = data[`as${type}`]();
+               break;
+            case 'End':
+               value = null;
+               break;
+            case 'List':
+            case 'ByteArray':
+            case 'IntArray':
+               value = _.array(data).map(framework.serialize);
+               break;
+            case 'Compound':
+               value = _.object(_.array(data.map.entrySet()), (entry) => {
+                  return { [entry.getKey()]: framework.serialize(entry.getValue()) };
+               });
+               break;
+         }
+         return { type: type, value: value };
+      }
    },
    simplify: (...context) => {
       let output = null;
