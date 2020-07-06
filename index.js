@@ -2,6 +2,7 @@
 const nms = eval(`Packages.net.minecraft.server.${server.getClass().getCanonicalName().split('.')[3]}`);
 
 const UUID = Java.type('java.util.UUID');
+const Location = Java.type('org.bukkit.Location');
 const Runnable = Java.extend(Java.type('java.lang.Runnable'));
 const ArrayList = Java.type('java.util.ArrayList');
 const NBTTagList = nms.NBTTagList;
@@ -13,83 +14,29 @@ const NBTTagByteArray = nms.NBTTagByteArray;
 const tasks = [];
 const crypto = new SecureRandom();
 
-const _ = {
-   access: (object) => {
-      if (object === null || typeof object !== 'object') {
-         return object;
+export const _ = {
+   array: (object, provider) => {
+      if (typeof object === 'number') {
+         const output = [];
+         let index = 0;
+         while (index < object) output.push(provider(index++));
+         return output;
+      } else if (_.iterable(object)) {
+         return [ ...object ];
+      } else if (typeof object.toArray === 'function') {
+         return _.array(object.toArray());
       } else {
-         const output = { _: object };
-         Object.entries(object).forEach((entry) => {
-            if (toString.apply(entry[1]) === '[foreign HostFunction]') {
-               Object.defineProperty(output, entry[0], {
-                  get () {
-                     const output = (...args) => _.access(entry[1](...args));
-                     output.hostFunction = entry[0];
-                     return output;
-                  }
-               });
-            } else {
-               Object.defineProperty(output, entry[0], {
-                  get () {
-                     return _.access(entry[1]);
-                  }
-               });
-            }
-            let index = undefined;
-            entry[0].startsWith('is') && entry[0][2] && (index = 2);
-            entry[0].startsWith('get') && entry[0][3] && (index = 3);
-            if (index) {
-               let key = entry[0].slice(index);
-               if (key.length) {
-                  let camel = key[0].toLowerCase() + key.slice(1);
-                  if (!Object.keys(object).includes(camel)) {
-                     try {
-                        entry[1]();
-                        Object.defineProperty(output, camel, {
-                           get () {
-                              return _.access(entry[1]());
-                           },
-                           set (value) {
-                              return object[`set${key}`] && object[`set${key}`](value);
-                           }
-                        });
-                     } catch (error) {}
-                  }
-               }
-            }
-         });
-         const array = _.array(object);
-         Object.keys(array).forEach((index) => {
-            if (!Object.keys(output).includes(index)) {
-               Object.defineProperty(output, index, {
-                  get () {
-                     return _.access(array[index]);
-                  }
-               });
-            }
-         });
+         const output = [];
+         if (typeof object.forEach === 'function') {
+            object.forEach((entry) => output.push(entry));
+         } else if (typeof object.forEachRemaining === 'function') {
+            object.forEachRemaining((entry) => output.push(entry));
+         } else if (typeof object.length === 'number') {
+            let index = 0;
+            while (index < object.length) output.push(object[index++]);
+         }
          return output;
       }
-   },
-   array: (object) => {
-      const output = [];
-      if (typeof object.length === 'number') {
-         if (object.length > 0) {
-            let index = 0;
-            while (output.length < object.length) {
-               output.push(object[index++]);
-            }
-         }
-      } else if (typeof object.forEach === 'function') {
-         object.forEach((entry) => {
-            output.push(entry);
-         });
-      } else if (typeof object.forEachRemaining === 'function') {
-         object.forEachRemaining((entry) => {
-            output.push(entry);
-         });
-      }
-      return output;
    },
    base: {
       characters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
@@ -144,6 +91,11 @@ const _ = {
    color: (string) => {
       return string.replace(/(&)/g, '§').replace(/(§§)/g, '&');
    },
+   def: (object) => {
+      if ([ undefined, null ].includes(object)) return false;
+      else if (typeof object === 'number' && object !== object) return false;
+      else return true;
+   },
    define: (object, consumer) => {
       consumer ||
          (consumer = (entry) => {
@@ -177,7 +129,9 @@ const _ = {
       return output;
    },
    dist: (source, target, flat) => {
-      if (source.getWorld() !== target.getWorld()) return Infinity;
+      if (source instanceof Location && target instanceof Location && source.getWorld() !== target.getWorld()) {
+         return Infinity;
+      }
       var deltaX = source.getX() - target.getX();
       var deltaY = flat ? 0 : source.getY() - target.getY();
       var deltaZ = source.getZ() - target.getZ();
@@ -210,6 +164,9 @@ const _ = {
       const output = { cancel: () => state.iteration.cancel() };
       tasks.push(output);
       return output;
+   },
+   iterable: (object) => {
+      return object ? typeof object[Symbol.iterator] === 'function' && typeof object !== 'string' : false;
    },
    key: (object, value) => {
       return _.keys(object)[_.values(object).indexOf(value)];
@@ -250,9 +207,10 @@ const _ = {
    mirror: (options) => {
       options || (options = {});
       const mirror = _.extend(options.array || [], {
-         add: options.add || (() => {}),
-         remove: options.remove || (() => {}),
-         clear: options.clear || (() => {})
+         add: (...args) => (options.add(...args), _.mirror(options).get()),
+         remove: (...args) => (options.remove(...args), _.mirror(options).get()),
+         clear: (...args) => (options.clear(...args), _.mirror(options).get()),
+         get: (...args) => options.get && options.get(mirror, ...args)
       });
       return {
          get: () => {
@@ -363,16 +321,53 @@ const _ = {
          offline: server.getOfflinePlayer(uuid)
       });
    },
-   rand: (...args) => {
-      switch (args.length) {
-         case 0:
-            return (crypto.nextInt() + 2147483648) / 4294967296;
-         case 1:
-            if (typeof args[0] === 'number') return _.rand() < args[0];
-            else if (args[0].length) return args[0][_.rand(0, args[0].length - 1)];
-            else return _.rand(_.keys(args[0]));
-         case 2:
-            return Math.floor(_.rand() * (args[1] - args[0] + 1)) + args[0];
+   polyfill: () => {
+      _.extend(global, {
+         atob: (string) => {
+            return _.base.decode(string);
+         },
+         btoa: (string) => {
+            return _.base.encode(string);
+         },
+         clearImmediate: (index) => {
+            tasks[index].cancel();
+         },
+         clearInterval: (index) => {
+            tasks[index].cancel();
+         },
+         clearTimeout: (index) => {
+            tasks[index].cancel();
+         },
+         setImmediate: (script) => {
+            _.timeout(script, 0);
+            return tasks.length - 1;
+         },
+         setInterval: (script, period) => {
+            _.interval(script, period || 1);
+            return tasks.length - 1;
+         },
+         setTimeout: (script, period) => {
+            _.timeout(script, period || 1);
+            return tasks.length - 1;
+         }
+      });
+   },
+   rand: {
+      base: () => {
+         return (crypto.nextInt() + 2147483648) / 4294967296;
+      },
+      range: (min, max) => {
+         return Math.floor(_.rand.base() * (max - min + 1)) + min;
+      },
+      threshold: (max) => {
+         return _.rand.base() < max;
+      },
+      entry: (object) => {
+         if (_.iterable(object) || typeof object === 'string') {
+            return object[_.rand.range(0, _.array(object).length - 1)];
+         } else {
+            return _.rand.entry(_.keys(object));
+         }
       }
    },
    raw: (string) => {
@@ -466,7 +461,7 @@ const _ = {
       return string.toUpperCase();
    },
    uuid: (string) => {
-      return string ? UUID.fromString(string) : UUID.randomUUID();
+      return string instanceof UUID ? string : _.def(string) ? UUID.fromString(string) : UUID.randomUUID();
    },
    values: (object) => {
       return Object.values(object);
@@ -489,5 +484,3 @@ core.event('org.bukkit.event.player.PlayerJoinEvent', (event) => {
 core.event('org.bukkit.event.server.PluginDisableEvent', (event) => {
    event.getPlugin() === core.plugin && tasks.forEach((task) => task.cancel());
 });
-
-core.export(_);
