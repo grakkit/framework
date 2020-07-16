@@ -325,10 +325,16 @@ const _ = {
                if (uuid === undefined && [ stored.toString(), offline.getName() ].includes(target)) uuid = stored;
             });
             if (uuid === undefined) {
-               try {
-                  uuid = _.uuid(target);
-               } catch (error) {
-                  uuid = server.getOfflinePlayer(target).getUniqueId();
+               if (target.includes('.')) {
+                  return {};
+               } else if (target.includes('-')) {
+                  try {
+                     uuid = _.uuid(target);
+                  } catch (error) {
+                     uuid = server.getOfflinePlayer(target).getUniqueId();
+                  }
+               } else {
+                  return {};
                }
             }
          }
