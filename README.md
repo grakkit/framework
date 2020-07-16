@@ -16,6 +16,8 @@ const framework = core.import('grakkit/framework');
 
 # Documentation
 
+**THIS DOCUMENTATION IS CURRENTLY OUT OF DATE. THIS MESSAGE WILL BE REMOVED ONCE IT IS UP TO DATE.**
+
 ### `framework.base.encode(string)`
 Encodes a `string` to base64 format.
 
