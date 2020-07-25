@@ -11,7 +11,7 @@ Use `/module add grakkit/framework` to install the module, and `/module update g
 #### Usage
 Once installed, this code will import this module to the `framework` variable.
 ```javascript
-const framework = core.import('grakkit/framework');
+const framework = core.import('@grakkit/framework');
 ```
 
 # Documentation
