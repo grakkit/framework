@@ -23,7 +23,7 @@ const prompts = {};
 const interfaces = {};
 const crypto = new SecureRandom();
 
-export const _ = {
+const _ = {
    array: (object, provider) => {
       if (typeof object === 'number') {
          const output = [];
@@ -642,3 +642,5 @@ core.event('org.bukkit.event.player.PlayerJoinEvent', (event) => {
 core.event('org.bukkit.event.server.PluginDisableEvent', (event) => {
    event.getPlugin() === core.plugin && tasks.forEach((task) => task.cancel());
 });
+
+core.export(_);
