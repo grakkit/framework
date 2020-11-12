@@ -1,5 +1,6 @@
-/**/ import { obbBlock, obuBoundingBox, obeEntity, obiItemStack, obLocation, obuVector, obeItem, obcCommandSender, obOfflinePlayer } from '../../../dict/classes'; /*
-import { obbBlock, obuBoundingBox, obeEntity, obiItemStack, obLocation, obuVector, obeItem, obcCommandSender, obOfflinePlayer } from '../core/dict/classes'; //*/
+import { obbBlock, obuBoundingBox, obeEntity, obiItemStack, obLocation, obuVector, obeItem, obcCommandSender, obOfflinePlayer, obeEntityType, obMaterial } from
+/* prefix this line with two forward slashes to enable dev mode */ '../../../dict/classes'; /*
+'../core/dict/classes' //*/
 
 type HasBoundingBox = obuBoundingBox | SerialBoundingBox | IsPhysical;
 type HasItemStack = obiItemStack | SerialItemStack | IsPhysical;
@@ -11,8 +12,8 @@ type IsEntity = obeEntity | obeItem | obePlayer | obOfflinePlayer;
 type IsPhysical = obbBlock | IsEntity | SerialEntity;
 
 type SerialBoundingBox = { class: 'BoundingBox', min: SerialVector, max: SerialVector };
-type SerialEntity = { class: 'Entity', nbt: SerialNBTTagCompound, type: string };
-type SerialItemStack = { class: 'ItemStack', nbt: SerialNBTTagCompound, type: string };
+type SerialEntity = { class: 'Entity', nbt: SerialNBTTagCompound, type: keyof typeof obeEntityType };
+type SerialItemStack = { class: 'ItemStack', nbt: SerialNBTTagCompound, type: keyof typeof obMaterial };
 type SerialLocation = { class: 'Location', pitch: number, world: string, x: number, y: number, yaw: number, z: number };
 type SerialNBTTag = SerialNBTTagByte | SerialNBTTagByteArray | SerialNBTTagCompound | SerialNBTTagDouble | SerialNBTTagFloat | SerialNBTTagInt | SerialNBTTagIntArray | SerialNBTTagList | SerialNBTTagLong | SerialNBTTagLongArray | SerialNBTTagShort | SerialNBTTagString
 type SerialNBTTagByte = { class: 'NBTTagByte', value: number };
