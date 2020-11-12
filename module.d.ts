@@ -1,4 +1,4 @@
-//**/ import { obuBoundingBox, obeEntity, obiItemStack, obLocation, obuVector } from '../../../dict/classes'; /*
+/**/ import { obbBlock, obuBoundingBox, obeEntity, obiItemStack, obLocation, obuVector, obeItem, obcCommandSender, obOfflinePlayer } from '../../../dict/classes'; /*
 import { obbBlock, obuBoundingBox, obeEntity, obiItemStack, obLocation, obuVector, obeItem, obcCommandSender, obOfflinePlayer } from '../core/dict/classes'; //*/
 
 type HasBoundingBox = obuBoundingBox | SerialBoundingBox | IsPhysical;
@@ -6,8 +6,9 @@ type HasItemStack = obiItemStack | SerialItemStack | IsPhysical;
 type HasLocation = obLocation | SerialLocation | IsPhysical;
 type HasVector = obuVector | SerialVector | HasLocation;
 
-type isContainer = obbBlock | obeEntity | obiItemStack | SerialEntity | SerialItemStack;
-type IsPhysical = obbBlock | obeEntity | SerialEntity;
+type IsContainer = obbBlock | IsEntity | obiItemStack | SerialEntity | SerialItemStack;
+type IsEntity = obeEntity | obeItem | obePlayer | obOfflinePlayer;
+type IsPhysical = obbBlock | IsEntity | SerialEntity;
 
 type SerialBoundingBox = { class: 'BoundingBox', min: SerialVector, max: SerialVector };
 type SerialEntity = { class: 'Entity', nbt: SerialNBTTagCompound, type: string };
@@ -57,7 +58,8 @@ export interface Main {
    parse (object: SerialLocation): obLocation;
    parse (object: SerialVector): obuVector;
    parse <X> (object: X): X;
-   /**  */
+   /** Returns the OfflinePlayer object associated with the given name. Searches through online players first, then the
+    * native offline player database. Name matches are case-insensitive. */
    player (name: string): obOfflinePlayer;
    player (...args: any[]): void;
    /** Returns a list of entities matching the given selector and context. If unspecified, selector will default to '@e'
