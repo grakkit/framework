@@ -68,7 +68,7 @@ export interface Main {
    /** Serializes a Bounding Box, Entity, Item Stack, Location, or Vector. If the input does not match
     * one of these types, the input itself will be returned instead. */
    serialize (object: obuBoundingBox): SerialBoundingBox;
-   serialize (object: obeEntity): SerialEntity;
+   serialize (object: IsEntity): SerialEntity;
    serialize (object: obiItemStack): SerialItemStack;
    serialize (object: obLocation): SerialLocation;
    serialize (object: obuVector): SerialVector;
