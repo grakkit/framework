@@ -14,7 +14,7 @@ import {
    obimBlockStateMeta
 } from '../../../dict/classes';
 
-import { ValidEntityType, ValidMaterial } from './unions';
+import { ValidEntityType, ValidMaterial } from './minecraft';
 
 type NBTTag = { new (...args: any[]): any; a(value: any): any; }
 type InstanceClass <X> = new (...args: any[]) => X;

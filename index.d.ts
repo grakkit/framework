@@ -1,5 +1,5 @@
 import { obbBlock, obePlayer, obuBoundingBox, obeEntity, obiItemStack, obLocation, obuVector, obeItem, obcCommandSender, obOfflinePlayer } from '../../../dict/classes';
-import { ValidEntityType, ValidMaterial } from './unions';
+import { ValidEntityType, ValidMaterial } from './minecraft';
 declare type HasBoundingBox = obuBoundingBox | SerialBoundingBox | IsPhysical;
 declare type HasItemStack = obiItemStack | SerialItemStack | IsPhysical;
 declare type HasLocation = obLocation | SerialLocation | IsPhysical;
